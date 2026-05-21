@@ -172,7 +172,7 @@ export default function APIHub() {
   const filteredNav = NAV.filter(n => n.label.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div style={{ display:'flex', height:'100vh', fontFamily:'"Segoe UI","Helvetica Neue",system-ui,sans-serif', background:t.bg, color:t.text, overflow:'hidden' }}>
+    <div style={{ display:'flex', height:'100vh', width: '100%', fontFamily:'"Segoe UI","Helvetica Neue",system-ui,sans-serif', background:t.bg, color:t.text, overflow:'hidden' }}>
       {/* Sidebar */}
       <aside style={{ width:210, flexShrink:0, background:t.surface, borderRight:`1px solid ${t.border}`, display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'16px 14px 10px', borderBottom:`1px solid ${t.border}` }}>
