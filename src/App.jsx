@@ -13,16 +13,16 @@ const NAV = [
 ];
 
 const QA = [
-  { level:'Beginner', q:'What is the difference between PUT and PATCH?', a:'PUT replaces the entire resource — you must send the full object. PATCH updates only the specified fields. PUT is idempotent (same result if called multiple times); PATCH may or may not be. Example: PUT /users/1 requires all fields; PATCH /users/1 {email: "new@x.com"} only updates email.', signal:'Mention idempotency. Know that PUT creates if missing.' },
-  { level:'Beginner', q:'What are the main HTTP status code families?', a:'2xx = Success (200 OK, 201 Created, 204 No Content). 3xx = Redirect. 4xx = Client error — the caller did something wrong (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 429 Too Many Requests). 5xx = Server error — your system failed (500 Internal Server Error, 503 Service Unavailable).', signal:'Key distinction: 4xx = client fault, 5xx = server fault.' },
-  { level:'Beginner', q:'What is idempotency and why does it matter?', a:'Idempotency means calling the same request multiple times produces the same result. GET, PUT, DELETE are idempotent. POST is not. This matters because networks fail and clients retry — you need to know which operations are safe to retry without side effects. Two POST /bookings calls create two bookings; two DELETE /bookings/55 calls leave the same end state.', signal:'Always link idempotency to retry safety in distributed systems.' },
-  { level:'Intermediate', q:'REST vs GraphQL — when would you choose each?', a:'Use REST by default — 90% of cases. It is simpler, cacheable, and familiar to all developers. Use GraphQL when: (1) mobile and web clients need different data shapes (over/under-fetching), (2) the frontend team needs to iterate without backend changes, (3) you need to aggregate from multiple resources in one round trip. Avoid GraphQL for simple CRUD with uniform clients or when HTTP caching is critical — GraphQL POSTs are not cacheable by CDNs.', signal:'Show you know the tradeoffs, not just that GraphQL is "more modern".' },
-  { level:'Intermediate', q:'Explain the JWT authentication flow', a:'1) User logs in with credentials. 2) Server validates and generates a JWT containing user_id, role, and expiry, signed with a secret key. 3) Client stores the JWT (memory or httpOnly cookie). 4) Every request sends Authorization: Bearer <token>. 5) Any service validates: signature is valid, token is not expired, claims match permissions — no database lookup needed. Use short-lived access tokens (15-60 min) with a refresh token to issue new ones.', signal:'Mention stateless validation, short expiry, and refresh tokens.' },
-  { level:'Intermediate', q:'What is the N+1 problem in GraphQL?', a:'When you query 100 events with their venues, a naive implementation runs 1 query for events + 1 query per event for its venue = 101 queries. At scale this destroys performance. Solution: DataLoader — a batching library that collects all venue IDs across a request, then runs one query: SELECT * FROM venues WHERE id IN (...all ids...). This reduces 101 queries to 2.', signal:'Always mention DataLoader as the standard solution.' },
-  { level:'Intermediate', q:'How does pagination work at scale?', a:'Three strategies: (1) Offset — ?offset=40&limit=20. Simple but breaks with concurrent inserts and is slow on large offsets (DB scans all prior rows). (2) Cursor — ?cursor=<opaque_token>&limit=20. Encodes the last-seen position, stable under inserts, fast — ideal for feeds and timelines. (3) Keyset — ?after_id=123&after_date=2024-01-01. Most performant for large tables using indexed columns. Never return unbounded lists — always paginate.', signal:'Know when to use each. Production preference: cursor or keyset.' },
-  { level:'Advanced', q:'Design a rate limiting system', a:'Implement at the API gateway level. Four strategies: Fixed Window (simple, bursts at boundary), Sliding Window (smoother, counts rolling N seconds), Token Bucket (allows bursts up to bucket size, refills at fixed rate — best for legitimate traffic spikes), Leaky Bucket (strict even output rate). Return 429 with Retry-After header. Store counters in Redis. Typical limits: 1000 req/hour per auth user, 100/hour per IP unauthenticated, 10/min for sensitive endpoints.', signal:'Mention Redis, the specific strategy tradeoffs, and response headers.' },
-  { level:'Advanced', q:'When would you use gRPC instead of REST?', a:'Use gRPC for internal service-to-service communication where you control both sides. gRPC uses HTTP/2 + Protocol Buffers (binary, compressed, multiplexed) — significantly faster than HTTP/1.1 + JSON. Advantages: strict .proto contract with generated type-safe clients in any language, native streaming (unary, server, client, bidirectional), compile-time type safety. Avoid for public browser clients (needs grpc-web proxy). In practice: REST for public endpoints, gRPC for internal microservices pipelines.', signal:'Contrast with REST clearly. Mention proto files and code generation.' },
-  { level:'Advanced', q:'How would you version an API?', a:'Four strategies: (1) URL path — /v1/events → /v2/events. Recommended. Explicit, easy to route, easy to test. (2) Header — API-Version: 2. Cleaner URLs but invisible in address bar, harder to test. (3) Query parameter — /events?version=2. Easy to add but pollutes query string. (4) Content negotiation — Accept: application/vnd.api.v2+json. Purist REST but very complex. Best approach: start with URL versioning, run v1 and v2 in parallel, deprecate v1 with sunset headers after migration window.', signal:'Know all four. Recommend URL versioning with confidence.' },
+  { level:'Beginner', q:'What is the difference between PUT and PATCH?', a:'PUT replaces the entire resource - you must send the full object. PATCH updates only the specified fields. PUT is idempotent (same result if called multiple times); PATCH may or may not be. Example: PUT /users/1 requires all fields; PATCH /users/1 {email: "new@x.com"} only updates email.', signal:'Mention idempotency. Know that PUT creates if missing.' },
+  { level:'Beginner', q:'What are the main HTTP status code families?', a:'2xx = Success (200 OK, 201 Created, 204 No Content). 3xx = Redirect. 4xx = Client error - the caller did something wrong (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 429 Too Many Requests). 5xx = Server error - your system failed (500 Internal Server Error, 503 Service Unavailable).', signal:'Key distinction: 4xx = client fault, 5xx = server fault.' },
+  { level:'Beginner', q:'What is idempotency and why does it matter?', a:'Idempotency means calling the same request multiple times produces the same result. GET, PUT, DELETE are idempotent. POST is not. This matters because networks fail and clients retry - you need to know which operations are safe to retry without side effects. Two POST /bookings calls create two bookings; two DELETE /bookings/55 calls leave the same end state.', signal:'Always link idempotency to retry safety in distributed systems.' },
+  { level:'Intermediate', q:'REST vs GraphQL - when would you choose each?', a:'Use REST by default - 90% of cases. It is simpler, cacheable, and familiar to all developers. Use GraphQL when: (1) mobile and web clients need different data shapes (over/under-fetching), (2) the frontend team needs to iterate without backend changes, (3) you need to aggregate from multiple resources in one round trip. Avoid GraphQL for simple CRUD with uniform clients or when HTTP caching is critical - GraphQL POSTs are not cacheable by CDNs.', signal:'Show you know the tradeoffs, not just that GraphQL is "more modern".' },
+  { level:'Intermediate', q:'Explain the JWT authentication flow', a:'1) User logs in with credentials. 2) Server validates and generates a JWT containing user_id, role, and expiry, signed with a secret key. 3) Client stores the JWT (memory or httpOnly cookie). 4) Every request sends Authorization: Bearer <token>. 5) Any service validates: signature is valid, token is not expired, claims match permissions - no database lookup needed. Use short-lived access tokens (15-60 min) with a refresh token to issue new ones.', signal:'Mention stateless validation, short expiry, and refresh tokens.' },
+  { level:'Intermediate', q:'What is the N+1 problem in GraphQL?', a:'When you query 100 events with their venues, a naive implementation runs 1 query for events + 1 query per event for its venue = 101 queries. At scale this destroys performance. Solution: DataLoader - a batching library that collects all venue IDs across a request, then runs one query: SELECT * FROM venues WHERE id IN (...all ids...). This reduces 101 queries to 2.', signal:'Always mention DataLoader as the standard solution.' },
+  { level:'Intermediate', q:'How does pagination work at scale?', a:'Three strategies: (1) Offset - ?offset=40&limit=20. Simple but breaks with concurrent inserts and is slow on large offsets (DB scans all prior rows). (2) Cursor - ?cursor=<opaque_token>&limit=20. Encodes the last-seen position, stable under inserts, fast - ideal for feeds and timelines. (3) Keyset - ?after_id=123&after_date=2024-01-01. Most performant for large tables using indexed columns. Never return unbounded lists - always paginate.', signal:'Know when to use each. Production preference: cursor or keyset.' },
+  { level:'Advanced', q:'Design a rate limiting system', a:'Implement at the API gateway level. Four strategies: Fixed Window (simple, bursts at boundary), Sliding Window (smoother, counts rolling N seconds), Token Bucket (allows bursts up to bucket size, refills at fixed rate - best for legitimate traffic spikes), Leaky Bucket (strict even output rate). Return 429 with Retry-After header. Store counters in Redis. Typical limits: 1000 req/hour per auth user, 100/hour per IP unauthenticated, 10/min for sensitive endpoints.', signal:'Mention Redis, the specific strategy tradeoffs, and response headers.' },
+  { level:'Advanced', q:'When would you use gRPC instead of REST?', a:'Use gRPC for internal service-to-service communication where you control both sides. gRPC uses HTTP/2 + Protocol Buffers (binary, compressed, multiplexed) - significantly faster than HTTP/1.1 + JSON. Advantages: strict .proto contract with generated type-safe clients in any language, native streaming (unary, server, client, bidirectional), compile-time type safety. Avoid for public browser clients (needs grpc-web proxy). In practice: REST for public endpoints, gRPC for internal microservices pipelines.', signal:'Contrast with REST clearly. Mention proto files and code generation.' },
+  { level:'Advanced', q:'How would you version an API?', a:'Four strategies: (1) URL path - /v1/events → /v2/events. Recommended. Explicit, easy to route, easy to test. (2) Header - API-Version: 2. Cleaner URLs but invisible in address bar, harder to test. (3) Query parameter - /events?version=2. Easy to add but pollutes query string. (4) Content negotiation - Accept: application/vnd.api.v2+json. Purist REST but very complex. Best approach: start with URL versioning, run v1 and v2 in parallel, deprecate v1 with sunset headers after migration window.', signal:'Know all four. Recommend URL versioning with confidence.' },
   { level:'System Design', q:'How would you design the API for a ticket booking system?', a:'Protocol: REST (default). Key endpoints: GET /events (paginated), GET /events/{id}, POST /events/{id}/bookings (create), GET /bookings/{id} (own only for customers). Security: JWT for users, API keys for partners. Pagination: cursor-based on list endpoints. Rate limit POST /bookings at 10/min to prevent double-booking spam. Idempotency key header on POST /bookings for retry safety. RBAC: customers see own bookings, managers see venue bookings, admins see all. Consider optimistic locking (409 Conflict) for concurrent seat selection.', signal:'Show you cover: protocol choice, endpoints, auth, pagination, rate limiting in 2-3 mins.' },
 ];
 
@@ -206,7 +206,7 @@ export default function APIHub() {
               Complete API Interview<br/>Preparation Hub
             </h1>
             <p style={{ color:t.muted, fontSize:15, lineHeight:1.7, maxWidth:520, margin:'0 0 1.5rem' }}>
-              Master REST, GraphQL, gRPC, Authentication, Pagination, Security, and Real-World API Design Patterns — all from one source.
+              Master REST, GraphQL, gRPC, Authentication, Pagination, Security, and Real-World API Design Patterns - all from one source.
             </p>
             <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
               {['Start Learning →', 'Interview Q&A', 'Cheat Sheet'].map((label,i) => (
@@ -236,7 +236,7 @@ export default function APIHub() {
             </Card>
             <Card t={t}>
               <h3 style={{ fontSize:14, fontWeight:700, color:t.purple, margin:'0 0 8px', letterSpacing:'0.04em' }}>THE RESTAURANT ANALOGY</h3>
-              <p style={{ fontSize:13.5, color:t.text, lineHeight:1.7, margin:0 }}>You (client) order from a menu (API contract). The waiter (API) carries your request to the kitchen (server) and returns your food (response). You never enter the kitchen — the API is the interface.</p>
+              <p style={{ fontSize:13.5, color:t.text, lineHeight:1.7, margin:0 }}>You (client) order from a menu (API contract). The waiter (API) carries your request to the kitchen (server) and returns your food (response). You never enter the kitchen - the API is the interface.</p>
             </Card>
           </div>
           <Card t={t}>
@@ -260,7 +260,7 @@ Content-Type: application/json
 
 {
   "id": "123",
-  "name": "Taylor Swift — Eras Tour",
+  "name": "Taylor Swift - Eras Tour",
   "date": "2024-07-15T20:00:00Z",
   "venue": { "name": "Wembley Stadium", "city": "London" },
   "tickets_available": 342
@@ -286,7 +286,7 @@ Content-Type: application/json
           <Card t={t}>
             <h3 style={{ fontSize:14, fontWeight:700, color:t.amber, margin:'0 0 12px', letterSpacing:'0.04em' }}>REAL-WORLD API EXAMPLES</h3>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-              {[['Stripe Payments API','POST /charges — charge a card in any app without handling card data directly'],['Google Maps API','GET /directions — embed routing into any app without building map infrastructure'],['Spotify API','GET /me/player — build apps that control music playback'],['Weather API','GET /forecast?city=London — any app can show weather without running weather servers']].map(([name,desc]) => (
+              {[['Stripe Payments API','POST /charges - charge a card in any app without handling card data directly'],['Google Maps API','GET /directions - embed routing into any app without building map infrastructure'],['Spotify API','GET /me/player - build apps that control music playback'],['Weather API','GET /forecast?city=London - any app can show weather without running weather servers']].map(([name,desc]) => (
                 <div key={name} style={{ padding:'10px 12px', background:`${t.amber}0a`, border:`1px solid ${t.amber}30`, borderRadius:8 }}>
                   <div style={{ fontSize:13, fontWeight:600, color:t.amber, marginBottom:4 }}>{name}</div>
                   <div style={{ fontSize:12, color:t.muted }}>{desc}</div>
@@ -298,7 +298,7 @@ Content-Type: application/json
 
         {/* PROTOCOLS */}
         <Section id="protocols">
-          <SectionTitle t={t} sub="Choose the right protocol — from the cheat sheet">Protocol Selection Guide</SectionTitle>
+          <SectionTitle t={t} sub="Choose the right protocol - from the cheat sheet">Protocol Selection Guide</SectionTitle>
           <Card t={t} style={{ marginBottom:'1rem', background:`${t.accent}08`, border:`1px solid ${t.accent}40` }}>
             <p style={{ fontSize:14, color:t.text, margin:0, lineHeight:1.7 }}>
               <span style={{ color:t.accent, fontWeight:700 }}>Interview strategy: </span>
@@ -308,7 +308,7 @@ Content-Type: application/json
           <Tbl t={t}
             headers={['Protocol','Best For','Signal Words / Triggers','Avoid When']}
             rows={[
-              ['REST','Web & mobile apps, CRUD, public APIs','Default choice — 90% of cases','Almost never avoid REST'],
+              ['REST','Web & mobile apps, CRUD, public APIs','Default choice - 90% of cases','Almost never avoid REST'],
               ['GraphQL','Flexible data fetching, multiple client types','"over-fetching", "under-fetching", mobile vs web','Simple CRUD with uniform clients'],
               ['gRPC / RPC','Internal services, high-performance pipelines','"microservices", "internal API", performance-critical','Public browser clients (needs proxy)'],
               ['WebSocket','Real-time: chat, live feeds, multiplayer','"real-time", "live updates", "persistent connection"','Simple request/response patterns'],
@@ -319,7 +319,7 @@ Content-Type: application/json
 
         {/* REST */}
         <Section id="rest">
-          <SectionTitle t={t} sub="The default choice — master this before anything else">REST APIs</SectionTitle>
+          <SectionTitle t={t} sub="The default choice - master this before anything else">REST APIs</SectionTitle>
           <h3 style={{ fontSize:16, fontWeight:700, color:t.accent, marginBottom:8 }}>Resource Modeling</h3>
           <p style={{ fontSize:13.5, color:t.muted, lineHeight:1.7, marginBottom:'0.5rem' }}>Think about the <em>things</em> in your system, not the actions. Resources are plural nouns. Map core entities to URL paths.</p>
           <CodeBlock t={t} code={`# Core resource endpoints (Ticketmaster-style)
@@ -330,7 +330,7 @@ PUT    /events/{id}         # Replace entire event
 PATCH  /events/{id}         # Update partial fields
 DELETE /events/{id}         # Remove event
 
-# Relationships — nest when parent is required
+# Relationships - nest when parent is required
 GET    /events/{id}/tickets     # Tickets for this event
 POST   /events/{id}/bookings    # Create a booking
 
@@ -351,23 +351,23 @@ GET    /tickets?event_id=123&section=VIP`} />
           />
           <Card t={t} style={{ background:`${t.amber}0a`, border:`1px solid ${t.amber}30` }}>
             <span style={{ fontWeight:700, color:t.amber }}>Why idempotency matters: </span>
-            <span style={{ fontSize:13.5, color:t.text }}>Networks fail and clients retry requests. GET, PUT, DELETE are safe to retry. POST is not — two POST calls create two bookings. Always design for retry safety.</span>
+            <span style={{ fontSize:13.5, color:t.text }}>Networks fail and clients retry requests. GET, PUT, DELETE are safe to retry. POST is not - two POST calls create two bookings. Always design for retry safety.</span>
           </Card>
 
           <h3 style={{ fontSize:16, fontWeight:700, color:t.accent, margin:'1.5rem 0 8px' }}>Passing Data</h3>
           <Tbl t={t}
             headers={['Location','Format','Use When','Example']}
             rows={[
-              ['Path parameter','/events/123','Required — identifies the specific resource','GET /events/123/tickets'],
-              ['Query parameter','?city=NYC&page=2','Optional — filtering, sorting, pagination','GET /events?city=NYC&limit=20'],
-              ['Request body','JSON object','Creating or updating — complex/sensitive data','POST /bookings {tickets, payment}'],
+              ['Path parameter','/events/123','Required - identifies the specific resource','GET /events/123/tickets'],
+              ['Query parameter','?city=NYC&page=2','Optional - filtering, sorting, pagination','GET /events?city=NYC&limit=20'],
+              ['Request body','JSON object','Creating or updating - complex/sensitive data','POST /bookings {tickets, payment}'],
             ]}
           />
         </Section>
 
         {/* GRAPHQL */}
         <Section id="graphql">
-          <SectionTitle t={t} sub="Flexible data fetching — use when clients need different shapes">GraphQL</SectionTitle>
+          <SectionTitle t={t} sub="Flexible data fetching - use when clients need different shapes">GraphQL</SectionTitle>
           <Card t={t} style={{ marginBottom:'1rem', background:`${t.purple}08`, border:`1px solid ${t.purple}30` }}>
             <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>REST endpoints return a fixed shape. A mobile app may need only event name and date, while web needs full venue details. With REST you either create multiple endpoints (proliferation) or return everything and waste bandwidth (over-fetching). GraphQL uses a single endpoint that accepts queries describing exactly what data the client wants.</p>
           </Card>
@@ -375,7 +375,7 @@ GET    /tickets?event_id=123&section=VIP`} />
   id: ID!
   name: String!
   date: DateTime!
-  venue: Venue!         # Nested type — traversable
+  venue: Venue!         # Nested type - traversable
   tickets: [Ticket!]!   # List of tickets
 }
 
@@ -412,7 +412,7 @@ mutation CreateBooking {
     id status
   }
 }`} />
-          <h3 style={{ fontSize:16, fontWeight:700, color:t.red, margin:'1.5rem 0 8px' }}>The N+1 Problem — Most Important GraphQL Gotcha</h3>
+          <h3 style={{ fontSize:16, fontWeight:700, color:t.red, margin:'1.5rem 0 8px' }}>The N+1 Problem - Most Important GraphQL Gotcha</h3>
           <CodeBlock t={t} code={`# Problem: 100 events = 101 queries
 # 1 query: SELECT * FROM events LIMIT 100
 # 100 more: SELECT * FROM venues WHERE id = ? (once per event)
@@ -428,12 +428,12 @@ class VenueLoader(DataLoader):
           <Tbl t={t}
             headers={['Situation','Use GraphQL?']}
             rows={[
-              ['Mobile app needs different data than web dashboard','✓ Yes — classic use case'],
-              ['Frontend team iterates without backend involvement','✓ Yes — they request new fields freely'],
-              ['Interviewer says "over-fetching" or "under-fetching"','✓ Yes — direct signal'],
-              ['Simple CRUD app with uniform clients','✗ No — REST is simpler'],
-              ['Need simple HTTP caching (CDN, browser cache)','✗ No — REST GET is cacheable; GraphQL POST is not'],
-              ['Public API for third-party developers','✗ No — REST is more familiar and documented'],
+              ['Mobile app needs different data than web dashboard','✓ Yes - classic use case'],
+              ['Frontend team iterates without backend involvement','✓ Yes - they request new fields freely'],
+              ['Interviewer says "over-fetching" or "under-fetching"','✓ Yes - direct signal'],
+              ['Simple CRUD app with uniform clients','✗ No - REST is simpler'],
+              ['Need simple HTTP caching (CDN, browser cache)','✗ No - REST GET is cacheable; GraphQL POST is not'],
+              ['Public API for third-party developers','✗ No - REST is more familiar and documented'],
             ]}
           />
         </Section>
@@ -448,8 +448,8 @@ class VenueLoader(DataLoader):
               ['Protocol','HTTP/1.1 + JSON','HTTP/2 + Protocol Buffers (binary)'],
               ['Performance','Moderate','High (binary, compressed, multiplexed)'],
               ['Browser support','Native','Requires grpc-web proxy'],
-              ['Contract','OpenAPI / informal','Strict .proto file — required'],
-              ['Code generation','Optional','Required — generated clients in any language'],
+              ['Contract','OpenAPI / informal','Strict .proto file - required'],
+              ['Code generation','Optional','Required - generated clients in any language'],
               ['Streaming','Workarounds (SSE, WebSocket)','Native: unary, server, client, bidirectional'],
               ['Best for','Public APIs, web & mobile clients','Internal service-to-service communication'],
             ]}
@@ -468,7 +468,7 @@ service BookingService {
 }
 
 message BookingRequest {
-  string event_id = 1;  # Field numbers are permanent — never reuse
+  string event_id = 1;  # Field numbers are permanent - never reuse
   string user_id = 2;
   int32 quantity = 3;
   string section = 4;
@@ -496,7 +496,7 @@ message BookingResponse {
               ['Short Polling','Client polls server','HTTP','When real-time is a nice-to-have','Lowest'],
             ]}
           />
-          <CodeBlock t={t} code={`# Server-Sent Events (SSE) — simplest real-time pattern
+          <CodeBlock t={t} code={`# Server-Sent Events (SSE) - simplest real-time pattern
 # Server (Node.js):
 res.setHeader("Content-Type", "text/event-stream");
 res.setHeader("Cache-Control", "no-cache");
@@ -511,14 +511,14 @@ es.onmessage = (e) => updateDisplay(JSON.parse(e.data));`} />
           <Card t={t} style={{ background:`${t.purple}08`, border:`1px solid ${t.purple}30` }}>
             <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>
               <span style={{ fontWeight:700, color:t.purple }}>Interview tip: </span>
-              When the interviewer says "real-time", "live updates", "notifications", or "persistent connection" — mention WebSocket or SSE and explain the tradeoff: WebSocket is bidirectional (chat), SSE is server-push only (dashboards, notifications) but simpler and works over plain HTTP.
+              When the interviewer says "real-time", "live updates", "notifications", or "persistent connection" - mention WebSocket or SSE and explain the tradeoff: WebSocket is bidirectional (chat), SSE is server-push only (dashboards, notifications) but simpler and works over plain HTTP.
             </p>
           </Card>
         </Section>
 
         {/* PAGINATION */}
         <Section id="pagination">
-          <SectionTitle t={t} sub="Always paginate list endpoints — returning millions of records is a design failure">Pagination</SectionTitle>
+          <SectionTitle t={t} sub="Always paginate list endpoints - returning millions of records is a design failure">Pagination</SectionTitle>
           <Tbl t={t}
             headers={['Type','How It Works','Pros','Cons','Use When']}
             rows={[
@@ -543,7 +543,7 @@ GET /events?cursor=eyJpZCI6MjB9&limit=20`} />
 
         {/* VERSIONING */}
         <Section id="versioning">
-          <SectionTitle t={t} sub="APIs change over time — versioning lets you evolve without breaking clients">API Versioning</SectionTitle>
+          <SectionTitle t={t} sub="APIs change over time - versioning lets you evolve without breaking clients">API Versioning</SectionTitle>
           <Tbl t={t}
             headers={['Strategy','Format','Pros','Cons']}
             rows={[
@@ -556,7 +556,7 @@ GET /events?cursor=eyJpZCI6MjB9&limit=20`} />
           <Card t={t} style={{ background:`${t.accent}08`, border:`1px solid ${t.accent}30` }}>
             <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>
               <span style={{ fontWeight:700, color:t.accent }}>Interview guidance: </span>
-              URL versioning is the safest choice — most interviewers know it. Run v1 and v2 in parallel, deprecate v1 with Sunset headers after a migration window. Versioning is often skipped entirely in interviews, which is fine — only mention it if the interviewer raises it.
+              URL versioning is the safest choice - most interviewers know it. Run v1 and v2 in parallel, deprecate v1 with Sunset headers after a migration window. Versioning is often skipped entirely in interviews, which is fine - only mention it if the interviewer raises it.
             </p>
           </Card>
         </Section>
@@ -567,11 +567,11 @@ GET /events?cursor=eyJpZCI6MjB9&limit=20`} />
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1rem' }}>
             <Card t={t} style={{ background:`${t.accent}08`, border:`1px solid ${t.accent}30` }}>
               <h3 style={{ fontSize:13, fontWeight:700, color:t.accent, margin:'0 0 6px' }}>AUTHENTICATION (AuthN)</h3>
-              <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>Verifying identity — who are you? Logging in, presenting credentials, validating a token. Happens first.</p>
+              <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>Verifying identity - who are you? Logging in, presenting credentials, validating a token. Happens first.</p>
             </Card>
             <Card t={t} style={{ background:`${t.purple}08`, border:`1px solid ${t.purple}30` }}>
               <h3 style={{ fontSize:13, fontWeight:700, color:t.purple, margin:'0 0 6px' }}>AUTHORIZATION (AuthZ)</h3>
-              <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>Checking permissions — what are you allowed to do? Happens after identity is confirmed. Separate step.</p>
+              <p style={{ fontSize:13.5, color:t.text, margin:0, lineHeight:1.7 }}>Checking permissions - what are you allowed to do? Happens after identity is confirmed. Separate step.</p>
             </Card>
           </div>
           <h3 style={{ fontSize:16, fontWeight:700, color:t.accent, marginBottom:8 }}>JWT Tokens</h3>
@@ -604,7 +604,7 @@ FROM api_keys
 WHERE key_hash = hash(received_key) AND revoked = false
 
 # Use for: server-to-server, third-party developers
-# Never for end users — no user context, no expiry by default`} />
+# Never for end users - no user context, no expiry by default`} />
           <h3 style={{ fontSize:16, fontWeight:700, color:t.accent, margin:'1.5rem 0 8px' }}>RBAC Table</h3>
           <Tbl t={t}
             headers={['Endpoint','Customer','Manager','Admin']}
@@ -647,10 +647,10 @@ Retry-After: 60              # Seconds until retry is safe
           <SectionTitle t={t} sub="Security checklist from the cheat sheet">Security Checklist</SectionTitle>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
             {[
-              { title:'Input Validation', color:'red', items:['Validate and sanitize all input — type, length, format, range','Reject unexpected fields — do not pass raw input to your database','Validate on the server — never trust client-side validation alone'] },
-              { title:'Transport & Data', color:'amber', items:['Always use HTTPS — never expose endpoints over plain HTTP','Never log sensitive data — no passwords, card numbers, tokens in logs','Hash API keys before storing — never store plain text secrets'] },
-              { title:'Auth & Access', color:'cyan', items:['Validate JWT signature and expiry on every request','Never trust user-provided IDs without checking ownership','Apply principle of least privilege — minimum permissions needed','Use short-lived access tokens (15–60 min) + refresh tokens'] },
-              { title:'Infrastructure', color:'purple', items:['Rate limit all public endpoints to prevent abuse and DDoS','Set CORS headers to restrict which origins can call your API','Return generic error messages — never expose stack traces or internals'] },
+              { title:'Input Validation', color:'red', items:['Validate and sanitize all input - type, length, format, range','Reject unexpected fields - do not pass raw input to your database','Validate on the server - never trust client-side validation alone'] },
+              { title:'Transport & Data', color:'amber', items:['Always use HTTPS - never expose endpoints over plain HTTP','Never log sensitive data - no passwords, card numbers, tokens in logs','Hash API keys before storing - never store plain text secrets'] },
+              { title:'Auth & Access', color:'cyan', items:['Validate JWT signature and expiry on every request','Never trust user-provided IDs without checking ownership','Apply principle of least privilege - minimum permissions needed','Use short-lived access tokens (15–60 min) + refresh tokens'] },
+              { title:'Infrastructure', color:'purple', items:['Rate limit all public endpoints to prevent abuse and DDoS','Set CORS headers to restrict which origins can call your API','Return generic error messages - never expose stack traces or internals'] },
             ].map(({ title, color, items }) => (
               <Card key={title} t={t}>
                 <h3 style={{ fontSize:13, fontWeight:700, marginBottom:10, margin:'0 0 10px' }}><Badge color={color} t={t}>{title}</Badge></h3>
@@ -667,11 +667,11 @@ Retry-After: 60              # Seconds until retry is safe
 
         {/* STATUS CODES */}
         <Section id="statuscodes">
-          <SectionTitle t={t} sub="Know the common ones — the key distinction is 4xx vs 5xx">HTTP Status Codes</SectionTitle>
+          <SectionTitle t={t} sub="Know the common ones - the key distinction is 4xx vs 5xx">HTTP Status Codes</SectionTitle>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:12 }}>
             {[
-              { family:'2xx Success', color:'green', codes:[['200','OK','Standard success for GET, PUT, PATCH'],['201','Created','POST succeeded — new resource made'],['204','No Content','Success but no body (DELETE, some PATCH)']] },
-              { family:'4xx Client Error', color:'amber', codes:[['400','Bad Request','Malformed syntax, missing required fields'],['401','Unauthorized','No auth credentials provided'],['403','Forbidden','Auth valid, but no permission'],['404','Not Found','Resource does not exist'],['409','Conflict','Duplicate booking, optimistic lock'],['422','Unprocessable','Well-formed but fails validation'],['429','Too Many Requests','Rate limit exceeded — retry after delay']] },
+              { family:'2xx Success', color:'green', codes:[['200','OK','Standard success for GET, PUT, PATCH'],['201','Created','POST succeeded - new resource made'],['204','No Content','Success but no body (DELETE, some PATCH)']] },
+              { family:'4xx Client Error', color:'amber', codes:[['400','Bad Request','Malformed syntax, missing required fields'],['401','Unauthorized','No auth credentials provided'],['403','Forbidden','Auth valid, but no permission'],['404','Not Found','Resource does not exist'],['409','Conflict','Duplicate booking, optimistic lock'],['422','Unprocessable','Well-formed but fails validation'],['429','Too Many Requests','Rate limit exceeded - retry after delay']] },
               { family:'5xx Server Error', color:'red', codes:[['500','Internal Server Error','Bug or crash on the server side'],['503','Service Unavailable','Server is down or overloaded']] },
             ].map(({ family, color, codes }) => (
               <Card key={family} t={t}>
@@ -696,18 +696,18 @@ Retry-After: 60              # Seconds until retry is safe
         <Section id="bestpractices">
           <SectionTitle t={t} sub="Production-grade API design principles">Best Practices</SectionTitle>
           <Checklist t={t} items={[
-            'Use plural nouns for resources: /events, /users, /bookings — never /getEvent',
-            'Always paginate list endpoints — never return unbounded collections',
+            'Use plural nouns for resources: /events, /users, /bookings - never /getEvent',
+            'Always paginate list endpoints - never return unbounded collections',
             'Return meaningful error messages with error code, message, and request ID',
-            'Use HTTPS everywhere — no exceptions for any environment',
-            'Version your API from day one — easier to add than retrofit',
-            'Validate all input server-side — never trust client-side validation',
+            'Use HTTPS everywhere - no exceptions for any environment',
+            'Version your API from day one - easier to add than retrofit',
+            'Validate all input server-side - never trust client-side validation',
             'Use idempotency keys for POST endpoints that create resources',
             'Implement rate limiting at the API gateway level, not in application code',
             'Use short-lived JWT tokens (15-60 min) with refresh token rotation',
-            'Set CORS headers explicitly — avoid wildcard * in production',
+            'Set CORS headers explicitly - avoid wildcard * in production',
             'Never log sensitive data: passwords, card numbers, JWT tokens',
-            'Hash API keys before storing — treat them like passwords',
+            'Hash API keys before storing - treat them like passwords',
             'Return 429 with Retry-After header when rate limits are hit',
             'Use cursor-based pagination for feeds and high-volume data',
             'Document your API with OpenAPI/Swagger specifications',
@@ -719,11 +719,11 @@ Retry-After: 60              # Seconds until retry is safe
           <SectionTitle t={t} sub="Real-world API decisions at scale">How Top Companies Use APIs</SectionTitle>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:12 }}>
             {[
-              { name:'Netflix', style:'REST + gRPC', why:'REST for public client APIs (web/mobile). gRPC for internal microservices with 700+ services. GraphQL for BFF (Backend for Frontend) pattern — each client type gets a tailored API layer.', scale:'200M+ subscribers, global CDN' },
-              { name:'Spotify', style:'REST + gRPC', why:'Public REST API for third-party developers. Internal gRPC for service communication. Web API returns different fields than mobile API — perfect GraphQL signal.', scale:'600M+ users, 100M+ tracks' },
-              { name:'Stripe', style:'REST', why:'Pure REST for the public API — simple, predictable, well-documented. Idempotency keys on all POST endpoints prevent double-charges. Webhook events for async payment state.', scale:'$1T+ payments processed' },
+              { name:'Netflix', style:'REST + gRPC', why:'REST for public client APIs (web/mobile). gRPC for internal microservices with 700+ services. GraphQL for BFF (Backend for Frontend) pattern - each client type gets a tailored API layer.', scale:'200M+ subscribers, global CDN' },
+              { name:'Spotify', style:'REST + gRPC', why:'Public REST API for third-party developers. Internal gRPC for service communication. Web API returns different fields than mobile API - perfect GraphQL signal.', scale:'600M+ users, 100M+ tracks' },
+              { name:'Stripe', style:'REST', why:'Pure REST for the public API - simple, predictable, well-documented. Idempotency keys on all POST endpoints prevent double-charges. Webhook events for async payment state.', scale:'$1T+ payments processed' },
               { name:'Uber', style:'REST + gRPC + WebSocket', why:'REST for booking flows. gRPC for internal services (matching, pricing). WebSocket for real-time driver location updates. SSE for notifications.', scale:'130M+ monthly users, 28 countries' },
-              { name:'Amazon', style:'REST + gRPC internal', why:'AWS public APIs are REST with extreme consistency. Internal services use gRPC. Strict API versioning — APIs never break backwards compatibility.', scale:'1M+ AWS customers' },
+              { name:'Amazon', style:'REST + gRPC internal', why:'AWS public APIs are REST with extreme consistency. Internal services use gRPC. Strict API versioning - APIs never break backwards compatibility.', scale:'1M+ AWS customers' },
             ].map(c => (
               <Card key={c.name} t={t}>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
@@ -760,7 +760,7 @@ Retry-After: 60              # Seconds until retry is safe
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1rem' }}>
             <Card t={t}>
               <h3 style={{ fontSize:13, fontWeight:700, color:t.green, margin:'0 0 10px' }}>WHAT TO COVER (in order)</h3>
-              {['State your protocol choice: "I\'ll use REST APIs here"','List your key endpoints — 3 to 6 is enough','Mention authentication: "endpoints are secured with JWT"','Mention pagination on list endpoints','Move on to high-level design'].map((item,i) => (
+              {['State your protocol choice: "I\'ll use REST APIs here"','List your key endpoints - 3 to 6 is enough','Mention authentication: "endpoints are secured with JWT"','Mention pagination on list endpoints','Move on to high-level design'].map((item,i) => (
                 <div key={i} style={{ display:'flex', gap:10, padding:'5px 0', borderTop:i>0?`1px solid ${t.border}`:'none' }}>
                   <span style={{ color:t.green, fontWeight:700, fontFamily:'monospace', flexShrink:0 }}>{i+1}.</span>
                   <span style={{ fontSize:13, color:t.muted }}>{item}</span>
@@ -769,7 +769,7 @@ Retry-After: 60              # Seconds until retry is safe
             </Card>
             <Card t={t}>
               <h3 style={{ fontSize:13, fontWeight:700, color:t.amber, margin:'0 0 10px' }}>WHAT TO SKIP (unless asked)</h3>
-              {['Exact status codes — say "2xx for success, 4xx for client error"','Versioning — only mention if the interviewer raises it','Detailed rate limiting algorithms','Complete request/response schemas'].map((item,i) => (
+              {['Exact status codes - say "2xx for success, 4xx for client error"','Versioning - only mention if the interviewer raises it','Detailed rate limiting algorithms','Complete request/response schemas'].map((item,i) => (
                 <div key={i} style={{ display:'flex', gap:10, padding:'5px 0', borderTop:i>0?`1px solid ${t.border}`:'none' }}>
                   <span style={{ color:t.amber, flexShrink:0 }}>✕</span>
                   <span style={{ fontSize:13, color:t.muted }}>{item}</span>
@@ -777,7 +777,7 @@ Retry-After: 60              # Seconds until retry is safe
               ))}
             </Card>
           </div>
-          <h3 style={{ fontSize:16, fontWeight:700, color:t.accent, marginBottom:8 }}>Signal Words — Your Response</h3>
+          <h3 style={{ fontSize:16, fontWeight:700, color:t.accent, marginBottom:8 }}>Signal Words - Your Response</h3>
           <Tbl t={t}
             headers={['If the interviewer says...','Your response']}
             rows={[
@@ -793,10 +793,10 @@ Retry-After: 60              # Seconds until retry is safe
             <h3 style={{ fontSize:14, fontWeight:700, color:t.accent, margin:'0 0 12px' }}>COMPLETE QUICK REFERENCE</h3>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'1rem' }}>
               {[
-                { title:'HTTP Methods', items:['GET — Read (safe, idempotent)','POST — Create (neither)','PUT — Replace (idempotent)','PATCH — Partial update','DELETE — Remove (idempotent)'] },
-                { title:'Auth Options', items:['JWT — user-facing web/mobile','API Keys — server-to-server','OAuth 2.0 — third-party delegation','Sessions — stateful (older apps)'] },
-                { title:'Pagination', items:['Offset — simple dashboards','Cursor — feeds, timelines','Keyset — large production tables','Always paginate lists!'] },
-                { title:'Status Families', items:['2xx — Success','3xx — Redirect','4xx — Client fault','5xx — Server fault','429 — Rate limited'] },
+                { title:'HTTP Methods', items:['GET - Read (safe, idempotent)','POST - Create (neither)','PUT - Replace (idempotent)','PATCH - Partial update','DELETE - Remove (idempotent)'] },
+                { title:'Auth Options', items:['JWT - user-facing web/mobile','API Keys - server-to-server','OAuth 2.0 - third-party delegation','Sessions - stateful (older apps)'] },
+                { title:'Pagination', items:['Offset - simple dashboards','Cursor - feeds, timelines','Keyset - large production tables','Always paginate lists!'] },
+                { title:'Status Families', items:['2xx - Success','3xx - Redirect','4xx - Client fault','5xx - Server fault','429 - Rate limited'] },
               ].map(({ title, items }) => (
                 <div key={title}>
                   <div style={{ fontSize:12, fontWeight:700, color:t.accent, letterSpacing:'0.06em', marginBottom:6 }}>{title}</div>
